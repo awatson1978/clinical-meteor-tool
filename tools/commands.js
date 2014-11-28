@@ -51,7 +51,7 @@ var VALID_ARCHITECTURES = {
 //
 // In the future, you should be able to make this default to some
 // other domain you control, rather than 'meteor.com'.
-var qualifySitename = function (site) {
+var qualifySitename = function(site) {
   if (site.indexOf(".") === -1)
     site = site + ".meteor.com";
   while (site.length && site[site.length - 1] === ".")
@@ -62,16 +62,16 @@ var qualifySitename = function (site) {
 // Given a (non necessarily fully qualified) site name from the
 // command line, return true if the site is hosted by a Galaxy, else
 // false.
-var hostedWithGalaxy = function (site) {
+var hostedWithGalaxy = function(site) {
   var site = qualifySitename(site);
-  return !! require('./deploy-galaxy.js').discoverGalaxy(site);
+  return !!require('./deploy-galaxy.js').discoverGalaxy(site);
 };
 
 // Display a message showing valid Meteor architectures.
-var showInvalidArchMsg = function (arch) {
+var showInvalidArchMsg = function(arch) {
   Console.info("Invalid architecture: " + arch);
   Console.info("The following are valid Meteor architectures:");
-  _.each(_.keys(VALID_ARCHITECTURES), function (va) {
+  _.each(_.keys(VALID_ARCHITECTURES), function(va) {
     Console.info("  " + va);
   });
 };
@@ -85,7 +85,7 @@ main.registerCommand({
   name: '--arch',
   requiresRelease: false,
   catalogRefresh: new catalog.Refresh.Never()
-}, function (options) {
+}, function(options) {
   var archinfo = require('./archinfo.js');
   console.log(archinfo.host());
 });
@@ -99,14 +99,14 @@ main.registerCommand({
   name: '--version',
   requiresRelease: false,
   catalogRefresh: new catalog.Refresh.Never()
-}, function (options) {
+}, function(options) {
   if (release.current === null) {
-    if (! options.appDir)
+    if (!options.appDir)
       throw new Error("missing release, but not in an app?");
     Console.stderr.write(
-"This project was created with a checkout of Meteor, rather than an\n" +
-"official release, and doesn't have a release number associated with\n" +
-"it. You can set its release with 'meteor update'.\n");
+      "This project was created with a checkout of Meteor, rather than an\n" +
+      "official release, and doesn't have a release number associated with\n" +
+      "it. You can set its release with 'meteor update'.\n");
     return 1;
   }
 
@@ -123,7 +123,7 @@ main.registerCommand({
   name: '--long-version',
   requiresRelease: false,
   catalogRefresh: new catalog.Refresh.Never()
-}, function (options) {
+}, function(options) {
   if (files.inCheckout()) {
     Console.stderr.write("checkout\n");
     return 1;
@@ -143,7 +143,7 @@ main.registerCommand({
   name: '--requires-release',
   requiresRelease: true,
   catalogRefresh: new catalog.Refresh.Never()
-}, function (options) {
+}, function(options) {
   return 0;
 });
 
@@ -156,38 +156,73 @@ var runCommandOptions = {
   requiresApp: true,
   maxArgs: Infinity,
   options: {
-    port: { type: String, short: "p", default: DEFAULT_PORT },
-    'mobile-server': { type: String },
+    port: {
+      type: String,
+      short: "p",
+      default: DEFAULT_PORT
+    },
+    'mobile-server': {
+      type: String
+    },
     // XXX COMPAT WITH 0.9.2.2
-    'mobile-port': { type: String },
-    'app-port': { type: String },
-    'http-proxy-port': { type: String },
-    'debug-port': { type: String },
-    production: { type: Boolean },
-    'raw-logs': { type: Boolean },
-    settings: { type: String },
-    program: { type: String },
-    test: {type: Boolean, default: false},
-    verbose: { type: Boolean, short: "v" },
+    'mobile-port': {
+      type: String
+    },
+    'app-port': {
+      type: String
+    },
+    'http-proxy-port': {
+      type: String
+    },
+    'debug-port': {
+      type: String
+    },
+    production: {
+      type: Boolean
+    },
+    'raw-logs': {
+      type: Boolean
+    },
+    settings: {
+      type: String
+    },
+    program: {
+      type: String
+    },
+    test: {
+      type: Boolean,
+      default: false
+    },
+    verbose: {
+      type: Boolean,
+      short: "v"
+    },
     // With --once, meteor does not re-run the project if it crashes
     // and does not monitor for file changes. Intentionally
     // undocumented: intended for automated testing (eg, cli-test.sh),
     // not end-user use. #Once
-    once: { type: Boolean },
+    once: {
+      type: Boolean
+    },
     // With --clean, meteor cleans the application directory and uses the
     // bundled assets only. Encapsulates the behavior of once (does not rerun)
     // and does not monitor for file changes. Not for end-user use.
-    clean: { type: Boolean}
+    clean: {
+      type: Boolean
+    }
   },
-  catalogRefresh: new catalog.Refresh.OnceAtStart({ ignoreErrors: true })
+  catalogRefresh: new catalog.Refresh.OnceAtStart({
+    ignoreErrors: true
+  })
 };
 
-main.registerCommand(_.extend(
-  { name: 'run' },
+main.registerCommand(_.extend({
+    name: 'run'
+  },
   runCommandOptions
 ), doRunCommand);
 
-function doRunCommand (options) {
+function doRunCommand(options) {
   // Calculate project versions. (XXX: Theoretically, we should not be doing it
   // here. We should do it lazily, if the command calls for it. However, we do
   // end up recalculating them for stats, for example, and, more importantly, we
@@ -195,8 +230,8 @@ function doRunCommand (options) {
   // those issues are concurrency-related, or possibly some weird
   // order-of-execution of interaction that we are failing to understand. This
   // seems to fix it in a clear and understandable fashion.)
-  var messages = buildmessage.capture(function () {
-    project.getVersions();  // #StructuredProjectInitialization
+  var messages = buildmessage.capture(function() {
+    project.getVersions(); // #StructuredProjectInitialization
     project.setDebug(!options.production);
   });
   if (messages.hasMessages()) {
@@ -212,15 +247,14 @@ function doRunCommand (options) {
     var parsedUrl = utils.parseUrl(options.port);
   } catch (err) {
     if (options.verbose) {
-      Console.stderr.write('Error while parsing --port option: '
-                           + err.stack + '\n');
+      Console.stderr.write('Error while parsing --port option: ' + err.stack + '\n');
     } else {
       Console.stderr.write(err.message + '\n');
     }
     return 1;
   }
 
-  if (! parsedUrl.port) {
+  if (!parsedUrl.port) {
     Console.stderr.write("--port must include a port.\n");
     return 1;
   }
@@ -229,8 +263,7 @@ function doRunCommand (options) {
     var parsedMobileServer = utils.mobileServerForRun(options);
   } catch (err) {
     if (options.verbose) {
-      Console.stderr.write('Error while parsing --mobile-server option: '
-                           + err.stack + '\n');
+      Console.stderr.write('Error while parsing --mobile-server option: ' + err.stack + '\n');
     } else {
       Console.stderr.write(err.message + '\n');
     }
@@ -265,7 +298,7 @@ function doRunCommand (options) {
 
       cordova.buildTargets(localPath, options.args, _.extend({
         appName: appName,
-        debug: ! options.production,
+        debug: !options.production,
         skipIfNoSDK: false
       }, options, parsedMobileServer));
 
@@ -285,11 +318,12 @@ function doRunCommand (options) {
   if (utils.runOnDevice(options)) {
     cordova.verboseLog('A run on a device requested');
     var warning = [
-"WARNING: You are testing your app on a remote device.",
-"         For the mobile app to be able to connect to the local server, make",
-"         sure your device is on the same network, and that the network",
-"         configuration allows clients to talk to each other",
-"         (no client isolation)."];
+      "WARNING: You are testing your app on a remote device.",
+      "         For the mobile app to be able to connect to the local server, make",
+      "         sure your device is on the same network, and that the network",
+      "         configuration allows clients to talk to each other",
+      "         (no client isolation)."
+    ];
 
     Console.stderr.write(warning.join("\n"));
   }
@@ -300,8 +334,8 @@ function doRunCommand (options) {
     var appPortMatch = options['app-port'].match(/^(?:(.+):)?([0-9]+)?$/);
     if (!appPortMatch) {
       Console.stderr.write(
-"run: --app-port must be a number or be of the form 'host:port' where\n" +
-"port is a number. Try 'meteor help run' for help.\n");
+        "run: --app-port must be a number or be of the form 'host:port' where\n" +
+        "port is a number. Try 'meteor help run' for help.\n");
       return 1;
     }
     appHost = appPortMatch[1] || null;
@@ -315,14 +349,16 @@ function doRunCommand (options) {
     if (release.current.name !== appRelease) {
       var appReleaseParts = utils.splitReleaseName(appRelease);
       console.log("=> Using %s as requested (overriding Meteor %s)",
-                  release.current.getDisplayName(),
-                  utils.displayRelease(appReleaseParts[0],
-                                       appReleaseParts[1]));
+        release.current.getDisplayName(),
+        utils.displayRelease(appReleaseParts[0],
+          appReleaseParts[1]));
       console.log();
     }
   }
 
-  auth.tryRevokeOldTokens({timeout: 1000});
+  auth.tryRevokeOldTokens({
+    timeout: 1000
+  });
 
   if (options['raw-logs'])
     runLog.setRawLogs(true);
@@ -331,9 +367,9 @@ function doRunCommand (options) {
   // runs phantomjs.
   //
   // NOTE: this calls process.exit() when testing is done.
-  if (options['test']){
+  if (options['test']) {
     var serverUrl = "http://" + (parsedUrl.host || "localhost") +
-          ":" + parsedUrl.port;
+      ":" + parsedUrl.port;
     var velocity = require('./run-velocity.js');
     velocity.runVelocity(serverUrl);
   }
@@ -370,10 +406,11 @@ function doRunCommand (options) {
 // debug
 ///////////////////////////////////////////////////////////////////////////////
 
-main.registerCommand(_.extend(
-  { name: 'debug' },
+main.registerCommand(_.extend({
+    name: 'debug'
+  },
   runCommandOptions
-), function (options) {
+), function(options) {
   options['debug-port'] = options['debug-port'] || '5858';
   return doRunCommand(options);
 });
@@ -386,13 +423,21 @@ main.registerCommand({
   name: 'create',
   maxArgs: 1,
   options: {
-    list: { type: Boolean },
-    example: { type: String },
-    package: { type: Boolean }
+    list: {
+      type: Boolean
+    },
+    example: {
+      type: String
+    },
+    package: {
+      type: Boolean
+    }
   },
   pretty: true,
-  catalogRefresh: new catalog.Refresh.OnceAtStart({ ignoreErrors: true })
-}, function (options) {
+  catalogRefresh: new catalog.Refresh.OnceAtStart({
+    ignoreErrors: true
+  })
+}, function(options) {
 
   // Creating a package is much easier than creating an app, so if that's what
   // we are doing, do that first. (For example, we don't springboard to the
@@ -412,11 +457,11 @@ main.registerCommand({
     }
 
     utils.validatePackageNameOrExit(
-      packageName, {detailedColonExplanation: true});
+      packageName, {
+        detailedColonExplanation: true
+      });
 
-    var packageDir = options.appDir
-          ? path.resolve(options.appDir, 'packages', packageName)
-          : path.resolve(packageName);
+    var packageDir = options.appDir ? path.resolve(options.appDir, 'packages', packageName) : path.resolve(packageName);
     var inYourApp = options.appDir ? " in your app" : "";
 
     if (fs.existsSync(packageDir)) {
@@ -424,7 +469,7 @@ main.registerCommand({
       return 1;
     }
 
-    var transform = function (x) {
+    var transform = function(x) {
       var xn = x.replace(/~name~/g, packageName);
 
       // If we are running from checkout, comment out the line sourcing packages
@@ -438,7 +483,9 @@ main.registerCommand({
         relString = rel.version;
       } else {
         xn = xn.replace(/~cc~/g, "");
-        relString = release.current.getDisplayName({noPrefix: true});
+        relString = release.current.getDisplayName({
+          noPrefix: true
+        });
       }
 
       // If we are not in checkout, write the current release here.
@@ -446,21 +493,21 @@ main.registerCommand({
     };
     try {
       files.cp_r(path.join(__dirname, 'skel-pack'), packageDir, {
-        transformFilename: function (f) {
+        transformFilename: function(f) {
           return transform(f);
-      },
-      transformContents: function (contents, f) {
-        if ((/(\.html|\.js|\.css)/).test(f))
-          return new Buffer(transform(contents.toString()));
-        else
-          return contents;
-      },
-      ignore: [/^local$/]
-    });
-   } catch (err) {
-     Console.stderr.write("Could not create package: " + err.message + "\n");
-     return 1;
-   }
+        },
+        transformContents: function(contents, f) {
+          if ((/(\.html|\.js|\.css)/).test(f))
+            return new Buffer(transform(contents.toString()));
+          else
+            return contents;
+        },
+        ignore: [/^local$/]
+      });
+    } catch (err) {
+      Console.stderr.write("Could not create package: " + err.message + "\n");
+      return 1;
+    }
 
     Console.stdout.write(packageName + ": created" + inYourApp + "\n");
     return 0;
@@ -476,24 +523,24 @@ main.registerCommand({
   // (In particular, it's not sufficient to create the new app with
   // this version of the tools, and then stamp on the correct release
   // at the end.)
-  if (! release.current.isCheckout() && !release.forced) {
+  if (!release.current.isCheckout() && !release.forced) {
     if (release.current.name !== release.latestKnown()) {
       throw new main.SpringboardToLatestRelease;
     }
   }
 
   var exampleDir = path.join(__dirname, '..', 'examples');
-  var examples = _.reject(fs.readdirSync(exampleDir), function (e) {
-    return (e === 'unfinished' || e === 'other'  || e[0] === '.');
+  var examples = _.reject(fs.readdirSync(exampleDir), function(e) {
+    return (e === 'unfinished' || e === 'other' || e[0] === '.');
   });
 
   if (options.list) {
     Console.stdout.write("Available examples:\n");
-    _.each(examples, function (e) {
+    _.each(examples, function(e) {
       Console.stdout.write("  " + e + "\n");
     });
     Console.stdout.write("\n" +
-"Create a project from an example with 'meteor create --example <name>'.\n");
+      "Create a project from an example with 'meteor create --example <name>'.\n");
     return 0;
   };
 
@@ -516,7 +563,7 @@ main.registerCommand({
     return 1;
   }
 
-  var transform = function (x) {
+  var transform = function(x) {
     return x.replace(/~name~/g, path.basename(appPath));
   };
 
@@ -536,10 +583,10 @@ main.registerCommand({
     }
   } else {
     files.cp_r(path.join(__dirname, 'skel'), appPath, {
-      transformFilename: function (f) {
+      transformFilename: function(f) {
         return transform(f);
       },
-      transformContents: function (contents, f) {
+      transformContents: function(contents, f) {
         if ((/(\.html|\.js|\.css)/).test(f))
           return new Buffer(transform(contents.toString()));
         else
@@ -559,7 +606,7 @@ main.registerCommand({
   // Any upgrader that is in this version of Meteor doesn't need to be run on
   // this project.
   var upgraders = require('./upgraders.js');
-  _.each(upgraders.allUpgraders(), function (upgrader) {
+  _.each(upgraders.allUpgraders(), function(upgrader) {
     project.appendFinishedUpgrader(upgrader);
   });
 
@@ -571,7 +618,7 @@ main.registerCommand({
     // User can provide additional package directories to search in PACKAGE_DIRS
     // (colon-separated).
     localPackageDirs = localPackageDirs.concat(
-      _.map(process.env.PACKAGE_DIRS.split(':'), function (p) {
+      _.map(process.env.PACKAGE_DIRS.split(':'), function(p) {
         return path.resolve(p);
       }));
   }
@@ -582,7 +629,9 @@ main.registerCommand({
       files.getCurrentToolsDir(), 'packages'));
   }
 
-  var messages = buildmessage.capture({ title: "Updating dependencies" }, function () {
+  var messages = buildmessage.capture({
+    title: "Updating dependencies"
+  }, function() {
     // XXX Hack. In the future we should just delay all use of catalog.complete
     // until this point.
     catalog.complete.initialize({
@@ -591,7 +640,9 @@ main.registerCommand({
 
     // Run the constraint solver. Override the assumption that using '--release'
     // means we shouldn't update .meteor/versions.
-    project._ensureDepsUpToDate({alwaysRecord: true});
+    project._ensureDepsUpToDate({
+      alwaysRecord: true
+    });
   });
 
 
@@ -610,8 +661,8 @@ main.registerCommand({
 
   Console.stdout.write(
     "To run your new app:\n" +
-      "   cd " + appPath + "\n" +
-      "   meteor\n");
+    "   cd " + appPath + "\n" +
+    "   meteor\n");
 });
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -627,12 +678,12 @@ main.registerCommand({
   maxArgs: 1,
   requiresApp: true,
   catalogRefresh: new catalog.Refresh.Never()
-}, function (options) {
+}, function(options) {
   var upgrader = options.args[0];
 
   var upgraders = require("./upgraders.js");
   console.log("%s: running upgrader %s.",
-              path.basename(options.appDir), upgrader);
+    path.basename(options.appDir), upgrader);
   upgraders.runUpgrader(upgrader);
 });
 
@@ -645,39 +696,63 @@ var buildCommands = {
   maxArgs: 1,
   requiresApp: true,
   options: {
-    debug: { type: Boolean },
-    directory: { type: Boolean },
-    architecture: { type: String },
-    'mobile-settings': { type: String },
-    server: { type: String },
+    debug: {
+      type: Boolean
+    },
+    directory: {
+      type: Boolean
+    },
+    architecture: {
+      type: String
+    },
+    'mobile-settings': {
+      type: String
+    },
+    server: {
+      type: String
+    },
     // XXX COMPAT WITH 0.9.2.2
-    "mobile-port": { type: String },
-    verbose: { type: Boolean, short: "v" }
+    "mobile-port": {
+      type: String
+    },
+    verbose: {
+      type: Boolean,
+      short: "v"
+    }
   },
-  catalogRefresh: new catalog.Refresh.OnceAtStart({ ignoreErrors: true })
+  catalogRefresh: new catalog.Refresh.OnceAtStart({
+    ignoreErrors: true
+  })
 };
 
-main.registerCommand(_.extend({ name: 'build' }, buildCommands),
-  function (options) {
+main.registerCommand(_.extend({
+    name: 'build'
+  }, buildCommands),
+  function(options) {
     return buildCommand(options);
-});
+  });
 
 // Deprecated -- identical functionality to 'build' with one exception: it
 // doesn't output a directory with all builds but rather only one tarball with
 // server/client programs.
 // XXX COMPAT WITH 0.9.1.1
-main.registerCommand(_.extend({ name: 'bundle', hidden: true }, buildCommands),
-    function (options) {
+main.registerCommand(_.extend({
+    name: 'bundle',
+    hidden: true
+  }, buildCommands),
+  function(options) {
 
-      Console.stderr.write(
-"This command has been deprecated in favor of 'meteor build', which allows you to\n" +
-"build for multiple platforms and outputs a directory instead of a single\n" +
-"tarball. See 'meteor help build' for more information.\n\n");
+    Console.stderr.write(
+      "This command has been deprecated in favor of 'meteor build', which allows you to\n" +
+      "build for multiple platforms and outputs a directory instead of a single\n" +
+      "tarball. See 'meteor help build' for more information.\n\n");
 
-      return buildCommand(_.extend(options, { _serverOnly: true }));
-});
+    return buildCommand(_.extend(options, {
+      _serverOnly: true
+    }));
+  });
 
-var buildCommand = function (options) {
+var buildCommand = function(options) {
   Console.setPretty(true);
 
   cordova.setVerboseness(options.verbose);
@@ -692,7 +767,7 @@ var buildCommand = function (options) {
   // architectures. See archinfo.js for more information on what the
   // architectures are, what they mean, et cetera.
   if (options.architecture &&
-      !_.has(VALID_ARCHITECTURES, options.architecture)) {
+    !_.has(VALID_ARCHITECTURES, options.architecture)) {
     showInvalidArchMsg(options.architecture);
     return 1;
   }
@@ -704,7 +779,7 @@ var buildCommand = function (options) {
     options.settings = options['mobile-settings'];
   }
 
-  var bundleArch =  options.architecture || archinfo.host();
+  var bundleArch = options.architecture || archinfo.host();
   var webArchs = project.getWebArchs();
 
   var localPath = path.join(options.appDir, '.meteor', 'local');
@@ -712,20 +787,22 @@ var buildCommand = function (options) {
   var mobilePlatforms = project.getCordovaPlatforms();
   var appName = path.basename(options.appDir);
 
-  if (! _.isEmpty(mobilePlatforms) && ! options._serverOnly) {
+  if (!_.isEmpty(mobilePlatforms) && !options._serverOnly) {
     // XXX COMPAT WITH 0.9.2.2 -- the --mobile-port option is deprecated
     var mobileServer = options.server || options["mobile-port"];
 
     if (mobileServer) {
       try {
         var parsedMobileServer = utils.parseUrl(
-          mobileServer, { protocol: "http://" });
+          mobileServer, {
+            protocol: "http://"
+          });
       } catch (err) {
         Console.stderr.write(err.message);
         return 1;
       }
 
-      if (! parsedMobileServer.host) {
+      if (!parsedMobileServer.host) {
         Console.stderr.write("--server must include a hostname.\n");
         return 1;
       }
@@ -733,8 +810,8 @@ var buildCommand = function (options) {
       // For Cordova builds, require '--server'.
       // XXX better error message?
       Console.stderr.write(
-"Supply the server hostname and port in the --server option\n" +
-"for mobile app builds.\n");
+        "Supply the server hostname and port in the --server option\n" +
+        "for mobile app builds.\n");
       return 1;
     }
     var cordovaSettings = {};
@@ -742,15 +819,15 @@ var buildCommand = function (options) {
     try {
       mobilePlatforms =
         cordova.buildTargets(localPath, mobilePlatforms, _.extend({}, options, {
-        host: parsedMobileServer.host,
-        port: parsedMobileServer.port,
-        protocol: parsedMobileServer.protocol,
-        appName: appName,
-        skipIfNoSDK: true
-      }));
+          host: parsedMobileServer.host,
+          port: parsedMobileServer.port,
+          protocol: parsedMobileServer.protocol,
+          appName: appName,
+          skipIfNoSDK: true
+        }));
     } catch (err) {
       if (err instanceof main.ExitWithCode)
-         throw err;
+        throw err;
       Console.printError(err, "Error while building for mobile platforms");
       return 1;
     }
@@ -759,7 +836,7 @@ var buildCommand = function (options) {
   var buildDir = path.join(localPath, 'build_tar');
   var outputPath = path.resolve(options.args[0]); // get absolute path
 
-  if (! _.isEmpty(mobilePlatforms)) {
+  if (!_.isEmpty(mobilePlatforms)) {
     // XXX: Create helper function?  Maybe fs.resolve to follow symlinks?
     var appDir = path.resolve(options.appDir);
     if (appDir.substr(-1) !== path.sep) {
@@ -780,13 +857,13 @@ var buildCommand = function (options) {
   }
 
   var bundlePath = options['directory'] ?
-      (options._serverOnly ? outputPath : path.join(outputPath, 'bundle')) :
-      path.join(buildDir, 'bundle');
+    (options._serverOnly ? outputPath : path.join(outputPath, 'bundle')) :
+    path.join(buildDir, 'bundle');
 
   // Creating the package loader with which to bundle our app here, probably
   // calculating the dependencies.
   var loader;
-  var messages = buildmessage.capture(function () {
+  var messages = buildmessage.capture(function() {
     // By default, options.debug will be false, which means that we will bundle
     // for production.
     project.setDebug(options.debug);
@@ -798,12 +875,12 @@ var buildCommand = function (options) {
     return 1;
   }
 
-  var statsMessages = buildmessage.capture(function () {
+  var statsMessages = buildmessage.capture(function() {
     stats.recordPackages("sdk.bundle");
   });
   if (statsMessages.hasMessages()) {
     Console.stdout.write("Error recording package list:\n" +
-                         statsMessages.formatMessages());
+      statsMessages.formatMessages());
     // ... but continue;
   }
 
@@ -811,7 +888,7 @@ var buildCommand = function (options) {
   var bundleResult = bundler.bundle({
     outputPath: bundlePath,
     buildOptions: {
-      minify: ! options.debug,
+      minify: !options.debug,
       // XXX is this a good idea, or should linux be the default since
       //     that's where most people are deploying
       //     default?  i guess the problem with using DEPLOY_ARCH as default
@@ -827,10 +904,10 @@ var buildCommand = function (options) {
     return 1;
   }
 
-  if (! options._serverOnly)
+  if (!options._serverOnly)
     files.mkdir_p(outputPath);
 
-  if (! options['directory']) {
+  if (!options['directory']) {
     try {
       var outputTar = options._serverOnly ? outputPath :
         path.join(outputPath, appName + '.tar.gz');
@@ -846,9 +923,9 @@ var buildCommand = function (options) {
 
   // Copy over the Cordova builds AFTER we bundle so that they are not included
   // in the main bundle.
-  !options._serverOnly && _.each(mobilePlatforms, function (platformName) {
+  !options._serverOnly && _.each(mobilePlatforms, function(platformName) {
     var buildPath = path.join(localPath, 'cordova-build',
-                              'platforms', platformName);
+      'platforms', platformName);
     var platformPath = path.join(outputPath, platformName);
 
     if (platformName === 'ios') {
@@ -858,7 +935,7 @@ var buildCommand = function (options) {
         path.join(platformPath, 'README'),
         "This is an auto-generated XCode project for your iOS application.\n\n" +
         "Instructions for publishing your iOS app to App Store can be found at:\n" +
-          "https://github.com/meteor/meteor/wiki/How-to-submit-your-iOS-app-to-App-Store\n",
+        "https://github.com/meteor/meteor/wiki/How-to-submit-your-iOS-app-to-App-Store\n",
         "utf8");
     } else if (platformName === 'android') {
       files.cp_r(buildPath, path.join(platformPath, 'project'));
@@ -868,7 +945,7 @@ var buildCommand = function (options) {
         path.join(platformPath, 'README'),
         "This is an auto-generated Ant project for your Android application.\n\n" +
         "Instructions for publishing your Android app to Play Store can be found at:\n" +
-          "https://github.com/meteor/meteor/wiki/How-to-submit-your-Android-app-to-Play-Store\n",
+        "https://github.com/meteor/meteor/wiki/How-to-submit-your-Android-app-to-Play-Store\n",
         "utf8");
     }
   });
@@ -876,12 +953,12 @@ var buildCommand = function (options) {
   files.rm_recursive(buildDir);
 };
 
-var findApkPath = function (dirPath) {
-  var apkPath = _.find(fs.readdirSync(dirPath), function (filePath) {
+var findApkPath = function(dirPath) {
+  var apkPath = _.find(fs.readdirSync(dirPath), function(filePath) {
     return path.extname(filePath) === '.apk';
   });
 
-  if (! apkPath)
+  if (!apkPath)
     throw new Error('The APK file for the Android build was not found.');
   return path.join(dirPath, apkPath);
 };
@@ -894,13 +971,16 @@ main.registerCommand({
   name: 'mongo',
   maxArgs: 1,
   options: {
-    url: { type: Boolean, short: 'U' }
+    url: {
+      type: Boolean,
+      short: 'U'
+    }
   },
-  requiresApp: function (options) {
+  requiresApp: function(options) {
     return options.args.length === 0;
   },
   catalogRefresh: new catalog.Refresh.Never()
-}, function (options) {
+}, function(options) {
   var mongoUrl;
   var usedMeteorAccount = false;
 
@@ -913,18 +993,18 @@ main.registerCommand({
     // XXX detect the case where Meteor is running, but MONGO_URL was
     // specified?
 
-    if (! mongoPort) {
+    if (!mongoPort) {
       Console.stdout.write(
-"mongo: Meteor isn't running a local MongoDB server.\n" +
-"\n" +
-"This command only works while Meteor is running your application\n" +
-"locally. Start your application first. (This error will also occur if\n" +
-"you asked Meteor to use a different MongoDB server with $MONGO_URL when\n" +
-"you ran your application.)\n" +
-"\n" +
-"If you're trying to connect to the database of an app you deployed\n" +
-"with 'meteor deploy', specify your site's name with this command.\n"
-);
+        "mongo: Meteor isn't running a local MongoDB server.\n" +
+        "\n" +
+        "This command only works while Meteor is running your application\n" +
+        "locally. Start your application first. (This error will also occur if\n" +
+        "you asked Meteor to use a different MongoDB server with $MONGO_URL when\n" +
+        "you ran your application.)\n" +
+        "\n" +
+        "If you're trying to connect to the database of an app you deployed\n" +
+        "with 'meteor deploy', specify your site's name with this command.\n"
+      );
       return 1;
     }
     mongoUrl = "mongodb://127.0.0.1:" + mongoPort + "/meteor";
@@ -942,8 +1022,8 @@ main.registerCommand({
       usedMeteorAccount = true;
     }
 
-    if (! mongoUrl)
-      // temporaryMongoUrl() will have printed an error message
+    if (!mongoUrl)
+    // temporaryMongoUrl() will have printed an error message
       return 1;
   }
   if (options.url) {
@@ -969,15 +1049,15 @@ main.registerCommand({
   maxArgs: 1,
   requiresApp: true,
   catalogRefresh: new catalog.Refresh.Never()
-}, function (options) {
+}, function(options) {
   if (options.args.length !== 0) {
     Console.stderr.write(
-"meteor reset only affects the locally stored database.\n" +
-"\n" +
-"To reset a deployed application use\n" +
-"  meteor deploy --delete appname\n" +
-"followed by\n" +
-"  meteor deploy appname\n");
+      "meteor reset only affects the locally stored database.\n" +
+      "\n" +
+      "To reset a deployed application use\n" +
+      "  meteor deploy --delete appname\n" +
+      "followed by\n" +
+      "  meteor deploy appname\n");
     return 1;
   }
 
@@ -986,13 +1066,13 @@ main.registerCommand({
 
   var findMongoPort =
     require(path.join(__dirname, 'run-mongo.js')).findMongoPort;
-  var isRunning = !! findMongoPort(options.appDir);
+  var isRunning = !!findMongoPort(options.appDir);
   if (isRunning) {
     Console.stderr.write(
-"reset: Meteor is running.\n" +
-"\n" +
-"This command does not work while Meteor is running your application.\n" +
-"Exit the running Meteor development server.\n");
+      "reset: Meteor is running.\n" +
+      "\n" +
+      "This command does not work while Meteor is running your application.\n" +
+      "Exit the running Meteor development server.\n");
     return 1;
   }
 
@@ -1012,28 +1092,45 @@ main.registerCommand({
   minArgs: 1,
   maxArgs: 1,
   options: {
-    'delete': { type: Boolean, short: 'D' },
-    debug: { type: Boolean },
-    settings: { type: String },
-    star: { type: String },
+    'delete': {
+      type: Boolean,
+      short: 'D'
+    },
+    debug: {
+      type: Boolean
+    },
+    settings: {
+      type: String
+    },
+    star: {
+      type: String
+    },
     // No longer supported, but we still parse it out so that we can
     // print a custom error message.
-    password: { type: String },
+    password: {
+      type: String
+    },
     // Shouldn't be documented until the Galaxy release. Marks the
     // application as an admin app, so that it will be available in
     // Galaxy admin interface.
-    admin: { type: Boolean },
+    admin: {
+      type: Boolean
+    },
     // Override architecture to deploy whatever stuff we have locally, even if
     // it contains binary packages that should be incompatible. A hack to allow
     // people to deploy from checkout or do other weird shit. We are not
     // responsible for the consequences.
-    'override-architecture-with-local' : { type: Boolean }
+    'override-architecture-with-local': {
+      type: Boolean
+    }
   },
-  requiresApp: function (options) {
+  requiresApp: function(options) {
     return options.delete || options.star ? false : true;
   },
-  catalogRefresh: new catalog.Refresh.OnceAtStart({ ignoreErrors: true })
-}, function (options) {
+  catalogRefresh: new catalog.Refresh.OnceAtStart({
+    ignoreErrors: true
+  })
+}, function(options) {
   var site = qualifySitename(options.args[0]);
   config.printUniverseBanner();
   var useGalaxy = hostedWithGalaxy(site);
@@ -1056,10 +1153,12 @@ main.registerCommand({
   // issues are concurrency-related, or possibly some weird order-of-execution
   // of interaction that we are failing to understand. This seems to fix it in a
   // clear and understandable fashion.)
-  var messages = buildmessage.capture({ title: "Resolving versions" },
-    function () {
-    project.getVersions();  // #StructuredProjectInitialization
-  });
+  var messages = buildmessage.capture({
+      title: "Resolving versions"
+    },
+    function() {
+      project.getVersions(); // #StructuredProjectInitialization
+    });
   if (messages.hasMessages()) {
     Console.stderr.write(messages.formatMessages());
     return 1;
@@ -1074,30 +1173,30 @@ main.registerCommand({
       Console.stderr.write("Galaxy does not support --password.\n");
     } else {
       Console.stderr.write(
-"Setting passwords on apps is no longer supported. Now there are\n" +
-"user accounts and your apps are associated with your account so that\n" +
-"only you (and people you designate) can access them. See the\n" +
-"'meteor claim' and 'meteor authorized' commands.\n");
+        "Setting passwords on apps is no longer supported. Now there are\n" +
+        "user accounts and your apps are associated with your account so that\n" +
+        "only you (and people you designate) can access them. See the\n" +
+        "'meteor claim' and 'meteor authorized' commands.\n");
     }
     return 1;
   }
 
   var starball = options.star;
-  if (starball && ! useGalaxy) {
+  if (starball && !useGalaxy) {
     // XXX it would be nice to support this for non-Galaxy deploys too
     Console.stderr.write(
-"--star: only supported when deploying to Galaxy.\n");
+      "--star: only supported when deploying to Galaxy.\n");
     return 1;
   }
 
   var loggedIn = auth.isLoggedIn();
-  if (! loggedIn) {
+  if (!loggedIn) {
     Console.stderr.write(
-"To instantly deploy your app on a free testing server, just enter your\n" +
-"email address!\n" +
-"\n");
+      "To instantly deploy your app on a free testing server, just enter your\n" +
+      "email address!\n" +
+      "\n");
 
-    if (! auth.registerOrLogIn())
+    if (!auth.registerOrLogIn())
       return 1;
   }
 
@@ -1114,7 +1213,7 @@ main.registerCommand({
   var webArchs = project.getWebArchs();
 
   var buildOptions = {
-    minify: ! options.debug,
+    minify: !options.debug,
     serverArch: buildArch,
     webArchs: webArchs
   };
@@ -1145,7 +1244,7 @@ main.registerCommand({
       // If the user was already logged in at the beginning of the
       // deploy, then they've already been prompted to set a password
       // at least once before, so we use a slightly different message.
-      firstTime: ! loggedIn
+      firstTime: !loggedIn
     });
   }
 
@@ -1162,10 +1261,13 @@ main.registerCommand({
   maxArgs: 1,
   options: {
     // XXX once Galaxy is released, document this
-    stream: { type: Boolean, short: 'f' }
+    stream: {
+      type: Boolean,
+      short: 'f'
+    }
   },
   catalogRefresh: new catalog.Refresh.Never()
-}, function (options) {
+}, function(options) {
   var site = qualifySitename(options.args[0]);
 
   if (hostedWithGalaxy(site)) {
@@ -1192,12 +1294,20 @@ main.registerCommand({
   minArgs: 1,
   maxArgs: 1,
   options: {
-    add: { type: String, short: "a" },
-    remove: { type: String, short: "r" },
-    list: { type: Boolean }
+    add: {
+      type: String,
+      short: "a"
+    },
+    remove: {
+      type: String,
+      short: "r"
+    },
+    list: {
+      type: Boolean
+    }
   },
   catalogRefresh: new catalog.Refresh.Never()
-}, function (options) {
+}, function(options) {
 
   if (options.add && options.remove) {
     Console.stderr.write(
@@ -1207,7 +1317,7 @@ main.registerCommand({
 
   if ((options.add || options.remove) && options.list) {
     Console.stderr.write(
-"Sorry, you can't change the users at the same time as you're listing them.\n");
+      "Sorry, you can't change the users at the same time as you're listing them.\n");
     return 1;
   }
 
@@ -1217,13 +1327,13 @@ main.registerCommand({
 
   if (hostedWithGalaxy(site)) {
     Console.stderr.write(
-"Sites hosted on Galaxy do not have an authorized user list.\n" +
-"Instead, go to your Galaxy dashboard to change the authorized users\n" +
-"of your Galaxy.\n");
+      "Sites hosted on Galaxy do not have an authorized user list.\n" +
+      "Instead, go to your Galaxy dashboard to change the authorized users\n" +
+      "of your Galaxy.\n");
     return 1;
   }
 
-  if (! auth.isLoggedIn()) {
+  if (!auth.isLoggedIn()) {
     Console.stderr.write(
       "You must be logged in for that. Try 'meteor login'.\n");
     return 1;
@@ -1246,16 +1356,16 @@ main.registerCommand({
   minArgs: 1,
   maxArgs: 1,
   catalogRefresh: new catalog.Refresh.Never()
-}, function (options) {
+}, function(options) {
   config.printUniverseBanner();
   auth.pollForRegistrationCompletion();
   var site = qualifySitename(options.args[0]);
 
-  if (! auth.isLoggedIn()) {
+  if (!auth.isLoggedIn()) {
     Console.stderr.write(
-"You must be logged in to claim sites. Use 'meteor login' to log in.\n" +
-"If you don't have a Meteor developer account yet, create one by clicking\n" +
-"'Sign in' and then 'Create account' at www.meteor.com.\n\n");
+      "You must be logged in to claim sites. Use 'meteor login' to log in.\n" +
+      "If you don't have a Meteor developer account yet, create one by clicking\n" +
+      "'Sign in' and then 'Create account' at www.meteor.com.\n\n");
     return 1;
   }
 
@@ -1280,42 +1390,85 @@ main.registerCommand({
   name: 'test-packages',
   maxArgs: Infinity,
   options: {
-    port: { type: String, short: "p", default: DEFAULT_PORT },
-    'http-proxy-port': { type: String },
-    'mobile-server': { type: String },
+    port: {
+      type: String,
+      short: "p",
+      default: DEFAULT_PORT
+    },
+    'http-proxy-port': {
+      type: String
+    },
+    'mobile-server': {
+      type: String
+    },
     // XXX COMPAT WITH 0.9.2.2
-    'mobile-port': { type: String },
-    'debug-port': { type: String },
-    deploy: { type: String },
-    production: { type: Boolean },
-    settings: { type: String },
-    verbose: { type: Boolean, short: "v" },
+    'mobile-port': {
+      type: String
+    },
+    'debug-port': {
+      type: String
+    },
+    deploy: {
+      type: String
+    },
+    production: {
+      type: Boolean
+    },
+    settings: {
+      type: String
+    },
+    verbose: {
+      type: Boolean,
+      short: "v"
+    },
 
     // Undocumented. See #Once
-    once: { type: Boolean },
+    once: {
+      type: Boolean
+    },
     // Undocumented. To ensure that QA covers both
     // PollingObserveDriver and OplogObserveDriver, this option
     // disables oplog for tests.  (It still creates a replset, it just
     // doesn't do oplog tailing.)
-    'disable-oplog': { type: Boolean },
+    'disable-oplog': {
+      type: Boolean
+    },
     // Undocumented flag to use a different test driver.
-    'driver-package': { type: String },
+    'driver-package': {
+      type: String
+    },
 
     // Sets the path of where the temp app should be created
-    'test-app-path': { type: String },
+    'test-app-path': {
+      type: String
+    },
 
     // Undocumented, runs tests under selenium
-    'selenium': { type: Boolean },
-    'selenium-browser': { type: String },
+    'selenium': {
+      type: Boolean
+    },
+    'selenium-browser': {
+      type: String
+    },
 
     // hard-coded options with all known Cordova platforms
-    ios: { type: Boolean },
-    'ios-device': { type: Boolean },
-    android: { type: Boolean },
-    'android-device': { type: Boolean }
+    ios: {
+      type: Boolean
+    },
+    'ios-device': {
+      type: Boolean
+    },
+    android: {
+      type: Boolean
+    },
+    'android-device': {
+      type: Boolean
+    }
   },
-  catalogRefresh: new catalog.Refresh.OnceAtStart({ ignoreErrors: true })
-}, function (options) {
+  catalogRefresh: new catalog.Refresh.OnceAtStart({
+    ignoreErrors: true
+  })
+}, function(options) {
   try {
     var parsedUrl = utils.parseUrl(options.port);
   } catch (err) {
@@ -1323,7 +1476,7 @@ main.registerCommand({
     return 1;
   }
 
-  if (! parsedUrl.port) {
+  if (!parsedUrl.port) {
     Console.stderr.write("--port must include a port.\n");
     return 1;
   }
@@ -1384,12 +1537,12 @@ main.registerCommand({
   var mobileOptions = ['ios', 'ios-device', 'android', 'android-device'];
   var mobilePlatforms = [];
 
-  _.each(mobileOptions, function (option) {
+  _.each(mobileOptions, function(option) {
     if (options[option])
       mobilePlatforms.push(option);
   });
 
-  if (! _.isEmpty(mobilePlatforms)) {
+  if (!_.isEmpty(mobilePlatforms)) {
     // For this release; we won't force-enable the httpProxy
     if (false) { //!options.httpProxyPort) {
       console.log('Forcing http proxy on port 3002 for mobile');
@@ -1399,7 +1552,9 @@ main.registerCommand({
     var localPath = path.join(testRunnerAppDir, '.meteor', 'local');
 
     var platforms =
-      _.map(mobilePlatforms, function (t) { return t.replace(/-device$/, ''); });
+      _.map(mobilePlatforms, function(t) {
+        return t.replace(/-device$/, '');
+      });
 
     platforms = _.uniq(platforms);
 
@@ -1409,7 +1564,7 @@ main.registerCommand({
       cordova.buildTargets(localPath, mobilePlatforms,
         _.extend({}, options, {
           appName: path.basename(testRunnerAppDir),
-          debug: ! options.production,
+          debug: !options.production,
           // Default to localhost for mobile builds.
           host: parsedMobileServer.host,
           protocol: parsedMobileServer.protocol,
@@ -1427,12 +1582,12 @@ main.registerCommand({
   return runTestAppForPackages(testPackages, testRunnerAppDir, options);
 });
 
-var getLocalPackages = function () {
+var getLocalPackages = function() {
   var ret = {};
   buildmessage.assertInCapture();
 
   var names = catalog.complete.getAllPackageNames();
-  _.each(names, function (name) {
+  _.each(names, function(name) {
     if (catalog.complete.isLocalPackage(name)) {
       ret[name] = catalog.complete.getLatestMainlineVersion(name);
     }
@@ -1442,16 +1597,16 @@ var getLocalPackages = function () {
 };
 
 // Ensures that packages are prepared and built for testing
-var getPackagesForTest = function (packages) {
+var getPackagesForTest = function(packages) {
   var testPackages;
   var localPackageNames = [];
   if (packages.length === 0) {
     // Test all local packages if no package is specified.
     // XXX should this use the new getLocalPackageNames?
-    var packageList = commandsPackages.doOrDie(function () {
+    var packageList = commandsPackages.doOrDie(function() {
       return getLocalPackages();
     });
-    if (! packageList) {
+    if (!packageList) {
       // Couldn't load the package list, probably because some package
       // has a parse error. Bail out -- this kind of sucks; we would
       // like to find a way to get reloading.
@@ -1459,24 +1614,24 @@ var getPackagesForTest = function (packages) {
     }
     testPackages = catalog.complete.getLocalPackageNames();
   } else {
-    var messages = buildmessage.capture(function () {
-      testPackages = _.map(packages, function (p) {
+    var messages = buildmessage.capture(function() {
+      testPackages = _.map(packages, function(p) {
         return buildmessage.enterJob({
           title: "Trying to test package `" + p + "`"
-        }, function () {
+        }, function() {
 
           // If it's a package name, just pass it through.
           if (p.indexOf('/') === -1) {
             if (p.indexOf('@') !== -1) {
               buildmessage.error(
-                "You may not specify versions for local packages: " + p );
+                "You may not specify versions for local packages: " + p);
               // Recover by returning p anyway.
             }
             // Check to see if this is a real package, and if it is a real
             // package, if it has tests.
             if (!catalog.complete.isLocalPackage(p)) {
               buildmessage.error(
-                "Not a known local package, cannot test: " + p );
+                "Not a known local package, cannot test: " + p);
               return p;
             }
             var versionNames = catalog.complete.getSortedVersions(p);
@@ -1485,7 +1640,7 @@ var getPackagesForTest = function (packages) {
             var versionRec = catalog.complete.getVersion(p, versionNames[0]);
             if (versionRec && !versionRec.testName) {
               buildmessage.error(
-                "There are no tests for package: " + p );
+                "There are no tests for package: " + p);
             }
             return p;
           }
@@ -1537,16 +1692,19 @@ var getPackagesForTest = function (packages) {
   var testRunnerAppDir = files.mkdtemp('meteor-test-run');
   files.cp_r(path.join(__dirname, 'test-runner-app'), testRunnerAppDir);
 
-  return { testPackages: testPackages, localPackages: localPackageNames };
+  return {
+    testPackages: testPackages,
+    localPackages: localPackageNames
+  };
 };
 
-var runTestAppForPackages = function (testPackages, testRunnerAppDir, options) {
+var runTestAppForPackages = function(testPackages, testRunnerAppDir, options) {
   // When we test packages, we need to know their versions and all of their
   // dependencies. We are going to add them to the project and have the project
   // compute them for us. This means that right now, we are testing all packages
   // as they work together.
   var tests = [];
-  var messages = buildmessage.capture(function () {
+  var messages = buildmessage.capture(function() {
     _.each(testPackages, function(name) {
       var versionNames = catalog.complete.getSortedVersions(name);
       if (versionNames.length !== 1)
@@ -1566,7 +1724,7 @@ var runTestAppForPackages = function (testPackages, testRunnerAppDir, options) {
   // We don't strictly need to do this before we bundle, but can't hurt.
   messages = buildmessage.capture({
     title: 'Getting packages ready'
-  },function () {
+  }, function() {
     project._ensureDepsUpToDate();
   });
 
@@ -1617,7 +1775,7 @@ var runTestAppForPackages = function (testPackages, testRunnerAppDir, options) {
     });
   }
 
-  _.each(options.localPackageNames || [], function (name) {
+  _.each(options.localPackageNames || [], function(name) {
     catalog.complete.removeLocalPackage(name);
   });
 
@@ -1632,8 +1790,10 @@ main.registerCommand({
   name: 'rebuild',
   maxArgs: Infinity,
   hidden: true,
-  catalogRefresh: new catalog.Refresh.OnceAtStart({ ignoreErrors: true })
-}, function (options) {
+  catalogRefresh: new catalog.Refresh.OnceAtStart({
+    ignoreErrors: true
+  })
+}, function(options) {
   var messages;
   var count = 0;
   // No packages specified. Rebuild everything.
@@ -1644,7 +1804,7 @@ main.registerCommand({
       // them. Sort of hacky, but eh.
       var programsDir = project.getProgramsDirectory();
       var programsSubdirs = project.getProgramsSubdirs();
-      _.each(programsSubdirs, function (program) {
+      _.each(programsSubdirs, function(program) {
         // The implementation of this part of the function might change once we
         // change the control file format to explicitly specify packages and
         // programs instead of just loading everything in the programs directory?
@@ -1652,11 +1812,11 @@ main.registerCommand({
       });
     }
 
-    messages = buildmessage.capture(function () {
+    messages = buildmessage.capture(function() {
       count = catalog.complete.rebuildLocalPackages();
     });
   } else {
-    messages = buildmessage.capture(function () {
+    messages = buildmessage.capture(function() {
       count = catalog.complete.rebuildLocalPackages(options.args);
     });
   }
@@ -1675,13 +1835,17 @@ main.registerCommand({
 main.registerCommand({
   name: 'login',
   options: {
-    email: { type: String },
+    email: {
+      type: String
+    },
     // Undocumented: get credentials on a specific Galaxy. Do we still
     // need this?
-    galaxy: { type: String }
+    galaxy: {
+      type: String
+    }
   },
   catalogRefresh: new catalog.Refresh.Never()
-}, function (options) {
+}, function(options) {
   return auth.loginCommand(_.extend({
     overwriteExistingToken: true
   }, options));
@@ -1695,7 +1859,7 @@ main.registerCommand({
 main.registerCommand({
   name: 'logout',
   catalogRefresh: new catalog.Refresh.Never()
-}, function (options) {
+}, function(options) {
   return auth.logoutCommand(options);
 });
 
@@ -1707,7 +1871,7 @@ main.registerCommand({
 main.registerCommand({
   name: 'whoami',
   catalogRefresh: new catalog.Refresh.Never()
-}, function (options) {
+}, function(options) {
   return auth.whoAmICommand(options);
 });
 
@@ -1715,11 +1879,13 @@ main.registerCommand({
 // organizations
 ///////////////////////////////////////////////////////////////////////////////
 
-var loggedInAccountsConnectionOrPrompt = function (action) {
+var loggedInAccountsConnectionOrPrompt = function(action) {
   var token = auth.getSessionToken(config.getAccountsDomain());
-  if (! token) {
+  if (!token) {
     Console.stderr.write("You must be logged in to " + action + ".\n");
-    auth.doUsernamePasswordLogin({ retry: true });
+    auth.doUsernamePasswordLogin({
+      retry: true
+    });
     Console.stdout.write("\n");
   }
 
@@ -1728,7 +1894,9 @@ var loggedInAccountsConnectionOrPrompt = function (action) {
   if (conn === null) {
     // Server rejected our token.
     Console.stderr.write("You must be logged in to " + action + ".\n");
-    auth.doUsernamePasswordLogin({ retry: true });
+    auth.doUsernamePasswordLogin({
+      retry: true
+    });
     Console.stdout.write("\n");
     token = auth.getSessionToken(config.getAccountsDomain());
     conn = auth.loggedInAccountsConnection(token);
@@ -1743,12 +1911,14 @@ main.registerCommand({
   minArgs: 0,
   maxArgs: 0,
   catalogRefresh: new catalog.Refresh.Never()
-}, function (options) {
+}, function(options) {
 
   var token = auth.getSessionToken(config.getAccountsDomain());
-  if (! token) {
+  if (!token) {
     Console.stderr.write("You must be logged in to list your organizations.\n");
-    auth.doUsernamePasswordLogin({ retry: true });
+    auth.doUsernamePasswordLogin({
+      retry: true
+    });
     Console.stdout.write("\n");
   }
 
@@ -1767,7 +1937,7 @@ main.registerCommand({
   }
 
   if (result.response.statusCode === 401 &&
-      body && body.error === "invalid_credential") {
+    body && body.error === "invalid_credential") {
     Console.stderr.write("You must be logged in to list your organizations.\n");
     // XXX It would be nice to do a username/password prompt here like
     // we do for the other orgs commands.
@@ -1775,7 +1945,7 @@ main.registerCommand({
   }
 
   if (result.response.statusCode !== 200 ||
-      ! body || ! body.organizations) {
+    !body || !body.organizations) {
     Console.stderr.write("Error listing organizations.\n");
     return 1;
   }
@@ -1793,12 +1963,18 @@ main.registerCommand({
   minArgs: 1,
   maxArgs: 1,
   options: {
-    add: { type: String },
-    remove: { type: String },
-    list: { type: Boolean }
+    add: {
+      type: String
+    },
+    remove: {
+      type: String
+    },
+    list: {
+      type: Boolean
+    }
   },
   catalogRefresh: new catalog.Refresh.Never()
-}, function (options) {
+}, function(options) {
 
   if (options.add && options.remove) {
     Console.stderr.write(
@@ -1813,29 +1989,29 @@ main.registerCommand({
   var conn = loggedInAccountsConnectionOrPrompt(
     username ? "edit organizations" : "show an organization's members");
 
-  if (username ) {
+  if (username) {
     // Adding or removing members
     try {
       conn.call(
-        options.add ? "addOrganizationMember": "removeOrganizationMember",
+        options.add ? "addOrganizationMember" : "removeOrganizationMember",
         options.args[0], username);
     } catch (err) {
       Console.stderr.write("Error " +
-                           (options.add ? "adding" : "removing") +
-                           " member: " + err.reason + "\n");
+        (options.add ? "adding" : "removing") +
+        " member: " + err.reason + "\n");
       return 1;
     }
 
     Console.stdout.write(username + " " +
-                         (options.add ? "added to" : "removed from") +
-                         " organization " + options.args[0] + ".\n");
+      (options.add ? "added to" : "removed from") +
+      " organization " + options.args[0] + ".\n");
   } else {
     // Showing the members of an org
     try {
       var result = conn.call("showOrganization", options.args[0]);
     } catch (err) {
       Console.stderr.write("Error showing organization: " +
-                           err.reason + "\n");
+        err.reason + "\n");
       return 1;
     }
 
@@ -1860,18 +2036,34 @@ main.registerCommand({
   minArgs: 0,
   maxArgs: 1,
   options: {
-    changed: { type: Boolean },
-    'force-online': { type: Boolean },
-    slow: { type: Boolean },
-    browserstack: { type: Boolean },
-    history: { type: Number },
-    list: { type: Boolean },
-    file: { type: String }
+    changed: {
+      type: Boolean
+    },
+    'force-online': {
+      type: Boolean
+    },
+    slow: {
+      type: Boolean
+    },
+    browserstack: {
+      type: Boolean
+    },
+    history: {
+      type: Number
+    },
+    list: {
+      type: Boolean
+    },
+    file: {
+      type: String
+    }
   },
   hidden: true,
   // It needs to deal with packages (catalog.complete)
-  catalogRefresh: new catalog.Refresh.OnceAtStart({ ignoreErrors: true })
-}, function (options) {
+  catalogRefresh: new catalog.Refresh.OnceAtStart({
+    ignoreErrors: true
+  })
+}, function(options) {
   var selftest = require('./selftest.js');
 
   // Auto-detect whether to skip 'net' tests, unless --force-online is passed.
@@ -1885,7 +2077,7 @@ main.registerCommand({
     }
   }
 
-  var compileRegexp = function (str) {
+  var compileRegexp = function(str) {
     try {
       return new RegExp(str);
     } catch (e) {
@@ -1899,7 +2091,7 @@ main.registerCommand({
   var testRegexp = undefined;
   if (options.args.length) {
     testRegexp = compileRegexp(options.args[0]);
-    if (! testRegexp) {
+    if (!testRegexp) {
       return 1;
     }
   }
@@ -1907,7 +2099,7 @@ main.registerCommand({
   var fileRegexp = undefined;
   if (options.file) {
     fileRegexp = compileRegexp(options.file);
-    if (! fileRegexp) {
+    if (!fileRegexp) {
       return 1;
     }
   }
@@ -1951,9 +2143,9 @@ main.registerCommand({
   minArgs: 0,
   maxArgs: 0,
   catalogRefresh: new catalog.Refresh.Never()
-}, function (options) {
+}, function(options) {
   auth.pollForRegistrationCompletion();
-  if (! auth.isLoggedIn()) {
+  if (!auth.isLoggedIn()) {
     Console.stderr.write(
       "You must be logged in for that. Try 'meteor login'.\n");
     return 1;
@@ -1972,18 +2164,28 @@ main.registerCommand({
   minArgs: 1,
   maxArgs: 1,
   options: {
-    json: { type: Boolean, required: false },
-    verbose: { type: Boolean, short: "v", required: false },
+    json: {
+      type: Boolean,
+      required: false
+    },
+    verbose: {
+      type: Boolean,
+      short: "v",
+      required: false
+    },
     // By default, we give you a machine for 5 minutes. You can request up to
     // 15. (MDG can reserve machines for longer than that.)
-    minutes: { type: Number, required: false }
+    minutes: {
+      type: Number,
+      required: false
+    }
   },
   catalogRefresh: new catalog.Refresh.Never()
-}, function (options) {
+}, function(options) {
 
   // Check that we are asking for a valid architecture.
   var arch = options.args[0];
-  if (!_.has(VALID_ARCHITECTURES, arch)){
+  if (!_.has(VALID_ARCHITECTURES, arch)) {
     showInvalidArchMsg(arch);
     return 1;
   }
@@ -1992,7 +2194,7 @@ main.registerCommand({
   var minutes = options.minutes || 5;
 
   // In verbose mode, we let you know what is going on.
-  var maybeLog = function (string) {
+  var maybeLog = function(string) {
     if (options.verbose) {
       Console.info(string);
     }
@@ -2029,10 +2231,10 @@ main.registerCommand({
   if (options.json) {
     var retJson = {
       'username': ret.username,
-      'host' : ret.host,
-      'port' : ret.port,
-      'key' : ret.sshKey,
-      'hostKey' : ret.hostKey
+      'host': ret.host,
+      'port': ret.port,
+      'key': ret.sshKey,
+      'hostKey': ret.hostKey
     };
     Console.info(JSON.stringify(retJson, null, 2));
     return 0;
@@ -2042,7 +2244,10 @@ main.registerCommand({
   // that ssh-agent requires it to have.
   var idpath = "/tmp/meteor-key-" + utils.randomToken();
   maybeLog("Writing ssh key to " + idpath);
-  fs.writeFileSync(idpath, ret.sshKey, {encoding: 'utf8', mode: 0400});
+  fs.writeFileSync(idpath, ret.sshKey, {
+    encoding: 'utf8',
+    mode: 0400
+  });
 
   // Add the known host key to a custom known hosts file.
   var hostpath = "/tmp/meteor-host-" + utils.randomToken();
@@ -2056,10 +2261,11 @@ main.registerCommand({
 
   var connOptions = [
     login,
-     "-i" + idpath,
-     "-p" + ret.port,
-     "-oUserKnownHostsFile=" + hostpath,
-     maybeVerbose];
+    "-i" + idpath,
+    "-p" + ret.port,
+    "-oUserKnownHostsFile=" + hostpath,
+    maybeVerbose
+  ];
 
   var printOptions = connOptions.join(' ');
   maybeLog("Connecting: ssh " + printOptions);
@@ -2067,10 +2273,11 @@ main.registerCommand({
   var child_process = require('child_process');
   var future = new Future;
   var sshCommand = child_process.spawn(
-    "ssh", connOptions,
-    { stdio: 'inherit' }); // Redirect spawn stdio to process
+    "ssh", connOptions, {
+      stdio: 'inherit'
+    }); // Redirect spawn stdio to process
 
-  sshCommand.on('exit', function (code, signal) {
+  sshCommand.on('exit', function(code, signal) {
     if (signal) {
       // XXX: We should process the signal in some way, but I am not sure we
       // care right now.
@@ -2098,26 +2305,83 @@ main.registerCommand({
 main.registerCommand({
   name: 'dummy',
   options: {
-    email: { type: String, short: "e", required: true },
-    port: { type: Number, short: "p", default: DEFAULT_PORT },
-    url: { type: Boolean, short: "U" },
-    'delete': { type: Boolean, short: "D" },
-    changed: { type: Boolean }
+    email: {
+      type: String,
+      short: "e",
+      required: true
+    },
+    port: {
+      type: Number,
+      short: "p",
+      default: DEFAULT_PORT
+    },
+    url: {
+      type: Boolean,
+      short: "U"
+    },
+    'delete': {
+      type: Boolean,
+      short: "D"
+    },
+    changed: {
+      type: Boolean
+    }
   },
   maxArgs: 2,
   hidden: true,
   catalogRefresh: new catalog.Refresh.Never()
-}, function (options) {
-  var p = function (key) {
+}, function(options) {
+  var p = function(key) {
     if (_.has(options, key))
       return JSON.stringify(options[key]);
     return 'none';
   };
 
   Console.stdout.write(p('email') + " " + p('port') + " " + p('changed') +
-                       " " + p('args') + "\n");
+    " " + p('args') + "\n");
   if (options.url)
     Console.stdout.write('url\n');
   if (options['delete'])
     Console.stdout.write('delete\n');
+});
+
+
+
+
+///////////////////////////////////////////////////////////////////////////////
+// nightwatch
+///////////////////////////////////////////////////////////////////////////////
+
+// Lets launch the Nightwatch framework and run some acceptance tests.
+
+main.registerCommand({
+  name: 'nightwatch',
+  maxArgs: 2,
+  options: {
+    nightwatchTest: {
+      type: String,
+      short: "t"
+    }
+  },
+  catalogRefresh: new catalog.Refresh.Never()
+}, function(options) {
+  Console.stdout.write('Nightwatch placeholder...');
+  Console.stdout.write('In the future, this will run nightwatch.');
+
+  //var child_process = require('child_process');
+
+  //var args = [];
+  //args.push('-la');
+  //var proc = child_process.spawn('ls', args, { stdio: 'inherit' });
+
+  // var firstArgs = [];
+  // firstArgs.push('+x');
+  // firstArgs.push('.meteor/local/build/programs/server/assets/packages/clinical_nightwatch/launch_nightwatch_from_app_root.sh');
+  // var firstProcess = child_process.spawn('chmod', firstArgs, { stdio: 'inherit' });
+  //
+  //
+  // var secondArgs = [];
+  // var secondProcess = child_process.spawn('.meteor/local/build/programs/server/assets/packages/clinical_nightwatch/launch_nightwatch_from_app_root.sh', firstArgs, { stdio: 'inherit' });
+
+
 });

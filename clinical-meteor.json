@@ -1,0 +1,10 @@
+{
+  "track": "clinical:METEOR",
+  "version": "1.0.35-rc3",
+  "recommended": false,
+  "tool": "clinical:meteor-tool@1.0.35_2",
+  "description": "Meteor stack with FDA and CCHIT regulatory approval in mind.",
+  "packages": {
+    
+  }
+}
